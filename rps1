@@ -1,0 +1,140 @@
+import random #for selecting Player, RandomPlayer's move and CyclePlayer's first move
+
+moves = ['rock', 'paper', 'scissors']
+
+
+class Player: #The Player class is the parent class for all of the Players
+              #in this game
+    my_move = None
+    their_move = None
+
+    def move(self):
+        return move[0]
+
+    def learn(self, my_move, their_move):
+        pass
+
+
+class RockPlayer(Player): #always plays rock
+    def move(self):
+        return 'rock'
+
+
+class RandomPlayer(Player): #RandomPlayer chooses a random move from
+                            #moves = ['rock', 'paper', 'scissors']
+    def move(self):
+        return random.choice(moves)
+
+
+class HumanPlayer(Player): #If answer is in list of moves, it will return move
+                           #If they type exit it will quit, else ask them to
+                           #try again
+    def move(self):
+        while True:
+            move = input("Rock, paper or scissors? > ").lower()
+            if move in moves:
+                return move
+            elif move == ("exit").lower():
+                exit()
+            else:
+                print('Incorrect move, please try again')
+
+
+class ReflectPlayer(Player): #first move will play a random choice,
+                             #all subsequent moves will copy HumanPlayers
+                             #move from previous round
+    def move(self):
+        if self.their_move is None:
+            return random.choice(moves)
+        return self.their_move
+
+    def learn(self, my_move, their_move):
+        self.their_move
+
+
+class CyclePlayer(Player): #establishes superclass for CyclePlayer
+                           #first round is random, then returns next move on
+                           #the list of moves for subsequent rounds
+    def __init__(self):
+        # Calling constructor of base class, Player
+        super(CyclePlayer, self).__init__()
+        self.my_move = None
+    def move(self):
+        if self.my_move == 'rock':
+            return 'paper'
+        elif self.my_move == 'paper':
+            return 'scissors'
+        elif self.my_move == 'scissors':
+            return 'rock'
+        elif self.my_move == None:
+            return random.choice(moves)
+
+
+def beats(one, two): #makes rule of which results beats/wins
+    return ((one == 'rock' and two == 'scissors') or
+            (one == 'scissors' and two == 'paper') or
+            (one == 'paper' and two == 'rock'))
+
+def draw(one, two): #makes rule of which results give a tie
+    return ((one == 'rock' and two == 'rock') or
+            (one == 'paper' and two == 'paper') or
+            (one == 'scissors' and two == 'scissors'))
+
+# Each player's score will begin at zero, if their move 'beats' the other move
+# their score will go up by one and be printed at the end of the round.
+
+class Game:
+    def __init__(self, p1, p2):
+        self.p1 = p1
+        self.p2 = p2
+        self.p1score = 0
+        self.p2score = 0
+
+    def play_round(self):
+        move1 = self.p1.move()
+        move2 = self.p2.move()
+
+        self.p1.learn(move1, move2)
+        self.p2.learn(move2, move1)
+
+        print(f"You played {move1} and your opponent played {move2}.")
+
+        if beats(move1, move2) is True: #scored increased by 1 if player wins
+            self.p1score += 1
+            #print(f"{move1} beats {move2}")
+            print("*You Win This Round*")
+        elif beats(move2, move1) is True:
+            self.p2score += 1
+            #print(f"{move2} beats {move1}")
+            print ("*Your Opponent Wins This Round!*")
+        elif draw(move1, move2) is True:
+            self.p1score += 0
+            self.p2score += 0
+            print("**It's a Tie!**")
+
+        print("Your Score", self.p1score, ", Opponent's Score", self.p2score)
+
+
+#As the game starts, it states the Round (beginning with Round 1)
+#It will print each player's score at the end of the game and state who wins/tie.
+
+    def play_game(self):
+        print("Welcome to Rock Paper Scissors! The game starts now!")
+        print("\nType 'exit' at any time to end the game")
+        for round in range(5):
+            print(f"\nRound {round +1}:")
+            #print("Rock, paper, or scissors?")
+            self.play_round()
+        print("\nTOTAL SCORE: You:", self.p1score, " vs. Your opponent:", self.p2score)
+        if self.p1score > self.p2score:
+            print("\nPlayer One Wins the Game!")
+        elif self.p2score > self.p1score:
+            print("\nPlayer Two Wins the Game!")
+        else:
+            print("\nTHE GAME HAS RESULTED IN A TIE")
+        print("---GAME OVER. SEE YOU NEXT TIME---")
+
+
+if __name__ == '__main__':
+    game = Game(HumanPlayer(), ReflectPlayer())
+    game.play_game()
